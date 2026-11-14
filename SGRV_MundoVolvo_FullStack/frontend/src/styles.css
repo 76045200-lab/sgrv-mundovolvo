@@ -1,0 +1,24 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:#17273a;background:#f2f5f9}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}
+@layer components{
+ .panel{@apply bg-white rounded-2xl border border-slate-200 shadow-sm p-5;}
+ .field{@apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100;}
+ .field-label{@apply block text-xs font-semibold text-slate-600 mb-1.5;}
+ .btn{@apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition;}
+ .btn-primary{@apply btn bg-[#116aa8] text-white hover:bg-[#0d5486];}
+ .btn-soft{@apply btn bg-slate-100 text-slate-700 hover:bg-slate-200;}
+ .btn-danger{@apply btn bg-red-50 text-red-700 hover:bg-red-100;}
+ .table-wrap{@apply w-full overflow-x-auto rounded-xl border border-slate-200;}
+ .data-table{@apply min-w-full divide-y divide-slate-200 text-sm;}
+ .data-table th{@apply bg-slate-50 text-left px-4 py-3 text-xs font-semibold tracking-wide text-slate-500 uppercase whitespace-nowrap;}
+ .data-table td{@apply px-4 py-3 text-slate-700 align-middle;}
+ .data-table tbody tr{@apply border-t border-slate-100 hover:bg-slate-50;}
+ .page-title{@apply text-2xl font-bold tracking-tight text-slate-800;}
+ .modal-backdrop{@apply fixed inset-0 z-50 bg-slate-950/65 flex items-center justify-center p-3 sm:p-6;}
+ .modal-card{@apply bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-auto shadow-2xl p-5 sm:p-7;}
+ .badge{@apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;}
+ .notice-error{@apply mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800;}
+ .notice-success{@apply mb-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800;}
+}
+@media print{.no-print,nav,aside,header,.modal-backdrop .no-print{display:none!important}body{background:#fff}.print-area{position:absolute;inset:0;background:white;width:100%;padding:15mm}.print-area .panel{border:none;box-shadow:none} .print-only{display:block!important}}

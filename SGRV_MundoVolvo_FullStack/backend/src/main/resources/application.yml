@@ -1,0 +1,24 @@
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: sgrv-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sgrv}
+    username: ${DB_USER:sgrv}
+    password: ${DB_PASSWORD:}
+  flyway:
+    enabled: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+sgrv:
+  bootstrap:
+    username: ${BOOTSTRAP_ADMIN_USER:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+  allowed-origin: ${APP_ORIGIN:http://localhost:4200}

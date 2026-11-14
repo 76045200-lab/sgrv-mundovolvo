@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sgrv
+      POSTGRES_USER: sgrv
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - sgrv_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sgrv -d sgrv"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/sgrv
+      DB_USER: sgrv
+      DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en .env}
+      BOOTSTRAP_ADMIN_USER: ${BOOTSTRAP_ADMIN_USER:?Configura BOOTSTRAP_ADMIN_USER}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?Configura BOOTSTRAP_ADMIN_PASSWORD de 12+ caracteres}
+      APP_ORIGIN: http://localhost:4200
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+volumes:
+  sgrv_pgdata:

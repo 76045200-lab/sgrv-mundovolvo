@@ -1,0 +1,21 @@
+import {Component,Input,OnChanges,inject} from '@angular/core';import {CommonModule} from '@angular/common';import {FormsModule} from '@angular/forms';import {BusinessService} from '../services/business.service';import {AuthService} from '../services/auth.service';
+@Component({selector:'app-contacts',standalone:true,imports:[CommonModule,FormsModule],template:`
+<div class="flex justify-between flex-wrap gap-3 mb-6"><div><h1 class="page-title">{{kind==='customers'?'Clientes':'Proveedores'}}</h1><p class="text-slate-500 text-sm mt-1">Registros persistentes y editables.</p></div><button class="btn-primary" (click)="newRecord()">+ Nuevo registro</button></div>
+@if(error){<div class="notice-error">{{error}}</div>}@if(message){<div class="notice-success">{{message}}</div>}
+<div class="panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Nombre / Razón social</th><th>Documento</th><th>Contacto</th><th>Dirección</th><th>Acciones</th></tr></thead><tbody>
+@for(c of data;track c.id){<tr><td class="font-semibold">{{c.name}}</td><td>{{kind==='customers'?c.document:c.tax_id||'—'}}</td><td>{{c.phone||'—'}}<div class="text-xs text-slate-400">{{c.email}}</div></td><td>{{c.address||'—'}}</td><td class="whitespace-nowrap"><button class="text-sky-700 text-xs font-semibold mr-3" (click)="edit(c)">Editar</button><button class="text-red-600 text-xs" (click)="remove(c)">Eliminar</button></td></tr>}
+@empty{<tr><td colspan="5" class="text-center py-12 text-slate-400">Sin registros</td></tr>}
+</tbody></table></div></div>
+@if(show){<div class="modal-backdrop" (click)="show=false"><div class="modal-card max-w-lg" (click)="$event.stopPropagation()"><h2 class="text-xl font-bold mb-5">{{form.id?'Editar':'Nuevo'}} {{kind==='customers'?'cliente':'proveedor'}}</h2><form (ngSubmit)="save()" class="space-y-4"><label class="block"><span class="field-label">Nombre / razón social *</span><input class="field" name="name" [(ngModel)]="form.name" required maxlength="200"></label>
+<label class="block"><span class="field-label">{{kind==='customers'?'Documento':'RUC / Identificación'}}</span><input class="field" name="document" [(ngModel)]="form.document"></label><label class="block"><span class="field-label">Teléfono</span><input class="field" name="phone" [(ngModel)]="form.phone"></label>
+<label class="block"><span class="field-label">Email</span><input class="field" name="email" type="email" [(ngModel)]="form.email"></label><label class="block"><span class="field-label">Dirección</span><input class="field" name="address" [(ngModel)]="form.address"></label>@if(form.id){<label class="flex gap-2 items-center text-sm"><input name="active" type="checkbox" [(ngModel)]="form.active"> Registro activo</label>}
+<div class="flex justify-end gap-2"><button type="button" class="btn-soft" (click)="show=false">Cancelar</button><button class="btn-primary" [disabled]="saving">{{saving?'Guardando...':'Guardar'}}</button></div></form></div></div>}
+`})export class ContactsPage implements OnChanges {
+ @Input()kind:'customers'|'suppliers'='customers';private service=inject(BusinessService);auth=inject(AuthService);data:any[]=[];form:any={};show=false;saving=false;error='';message='';
+ ngOnChanges(){this.load()}
+ async load(){try{this.data=await this.service.list(this.kind)}catch(e:any){this.error=e.message}}
+ newRecord(){this.form={name:'',document:'',phone:'',email:'',address:''};this.show=true}
+ edit(c:any){this.form={id:c.id,name:c.name,document:this.kind==='customers'?c.document:c.tax_id,phone:c.phone,email:c.email,address:c.address,active:c.active};this.show=true}
+ async save(){this.saving=true;this.error='';try{if(!this.form.name?.trim())throw new Error('Nombre obligatorio');const payload={...this.form,...(this.kind==='suppliers'?{taxId:this.form.document}:{})};if(this.form.id)await this.service.update(this.kind,this.form.id,payload);else await this.service.create(this.kind,payload);this.show=false;this.message='Registro guardado';await this.load()}catch(e:any){this.error=e.message}finally{this.saving=false}}
+ async remove(c:any){if(!confirm(`¿Eliminar ${c.name}? Se impedirá si tiene documentos relacionados.`))return;try{await this.service.remove(this.kind,c.id);this.message='Eliminado';await this.load()}catch(e:any){this.error=e.message}}
+}
